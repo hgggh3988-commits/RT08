@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ذكرى عصافيرنا الجميلة 🕊️</title>
+    <style>
+        /* إعدادات عامة لمنع الحركة اليمين والشمال وتظبيط الدارك مود */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121214; /* أرضية دارك غامقة وشيك */
+            color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden; /* منع الحركة الأفقية تماماً */
+            width: 100%;
+        }
+
+        /* هيدر بميكس البينك ودرجات العصافير */
+        header {
+            text-align: center;
+            padding: 35px 20px;
+            background: linear-gradient(135deg, #fbc5d8, #b3e5fc, #c8e6c9); /* ميكس بينك، لبني، وأخضر هادي */
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #ff8b94;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 2rem;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        }
+
+        header p {
+            margin: 10px 0 0;
+            color: #455a64;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* زرار الصوت البينك الدارك */
+        .audio-container {
+            margin: 25px 0 15px 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .music-btn {
+            background: linear-gradient(135deg, #ff7675, #fd79a8); /* ميكس بينك وبيربل ناعم */
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 0.95rem;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(253, 121, 168, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+        
+        .music-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* شبكة الصور: مربعين جنب بعض بالظبط في الموبايل */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* صورتين بالظبط في الصف */
+            gap: 12px;
+            width: 100%;
+            padding: 15px;
+            max-width: 600px; /* أنسب حجم لشاشة الموبايل */
+        }
+
+        .gallery-item {
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            aspect-ratio: 1 / 1; /* مربع كامل ومثالي */
+            background-color: #1e1e24;
+            cursor: pointer;
+            border: 1px solid rgba(253, 121, 168, 0.15); /* إطار بينك خفيف جداً */
+            transition: transform 0.2s ease;
+        }
+
+        .gallery-item:active {
+            transform: scale(0.98); /* تأثير ضغطة خفيفة */
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* شاشة تكبير الصور بتأثير ناعم (Lightbox) */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 10, 12, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .lightbox.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 92%;
+            max-height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(253, 121, 168, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .lightbox.show img {
+            transform: scale(1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: #fd79a8;
+            font-size: 35px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+        <header>
+        <h1>معرض الذكريات الجميلة 🕊️</h1>
+        <h2 style="margin: 5px 0; color: #e91e63; font-size: 1.3rem; font-weight: bold;"> RoRo💞</h2>
+        <p>العصافير سافرت.. لكن مكانها في القلب دايماً موجود ✨</p>
+    </header>
+
+
+    <div class="audio-container">
+        <button class="music-btn" id="playBtn">On Music 🎵</button>
+        <audio id="bgAudio" loop>
+            <source src="birds-bgm.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <div class="gallery" id="galleryContainer"></div>
+
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightboxImg" src="" alt="Bird Zoomed">
+    </div>
+
+    <script>
+        // عدد الصور الـ 42 بتوعك
+        const totalImages = 42; 
+        const galleryContainer = document.getElementById('galleryContainer');
+
+        // توليد الصور تلقائياً
+        for(let i = 1; i <= totalImages; i++) {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.innerHTML = `<img src="${i}.jpg" alt="عصفور" loading="lazy" onerror="this.parentElement.style.display='none'">`; 
+            
+            item.addEventListener('click', () => {
+                openLightbox(`${i}.jpg`);
+            });
+            galleryContainer.appendChild(item);
+        }
+
+        // التحكم في الصوت
+        const audio = document.getElementById('bgAudio');
+        const playBtn = document.getElementById('playBtn');
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play().catch(err => console.log("تحتاج لتفاعل أولاً"));
+                playBtn.innerText = "إيقاف الصوت ⏸️";
+                playBtn.style.background = "#6c5ce7";
+                playBtn.style.boxShadow = "0 4px 12px rgba(108, 92, 231, 0.3)";
+            } else {
+                audio.pause();
+                playBtn.innerText = "تشغيل صوت العصافير 🎵";
+                playBtn.style.background = "linear-gradient(135deg, #ff7675, #fd79a8)";
+                playBtn.style.boxShadow = "0 4px 12px rgba(253, 121, 168, 0.3)";
+            }
+        });
+
+        // وظائف شاشة عرض وتكبير الصور بالتأثير الناعم
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
+            setTimeout(() => {
+                lightbox.classList.add('show');
+            }, 10);
+        }
+        
+        function closeLightbox() {
+            lightbox.classList.remove('show');
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+            }, 300);
+        }
+    </script>
+</body>
+</html> {
+                lightbox.style.display = 'none';
+            }, 300);
+        }
+    </script>
+</body>
+</html>
